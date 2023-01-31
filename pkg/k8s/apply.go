@@ -33,7 +33,7 @@ func (k *KubernetesControllerImpl) CheckDeployByYaml(p string) *KubernetesContro
 	case "Deployment":
 		k.BackupYamlWithDeployment(object)
 	default:
-		logrus.Fatalf("暂时进支持Deployment类型，不支持：%s", kind)
+		logrus.Fatalf("暂时仅支持Deployment类型，不支持：%s", kind)
 	}
 	return k
 }
