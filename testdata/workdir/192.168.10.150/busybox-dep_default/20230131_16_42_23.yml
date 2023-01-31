@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "3"
+  creationTimestamp: "2023-01-31T08:38:02Z"
+  generation: 3
+  labels:
+    app: busybox-dep
+  name: busybox-dep
+  namespace: default
+  resourceVersion: "9920354"
+  uid: 940ea127-98a3-4244-8d0a-a6241947d4dd
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: busybox-dep
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: busybox-dep
+    spec:
+      containers:
+      - command:
+        - sleep
+        - "9999"
+        image: busybox:1.36.0
+        imagePullPolicy: IfNotPresent
+        name: busybox
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2023-01-31T08:38:04Z"
+    lastUpdateTime: "2023-01-31T08:38:04Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2023-01-31T08:38:02Z"
+    lastUpdateTime: "2023-01-31T08:42:08Z"
+    message: ReplicaSet "busybox-dep-6d9d5448fd" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 3
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1

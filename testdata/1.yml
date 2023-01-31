@@ -1,0 +1,27 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: busybox-dep
+  namespace: default
+  labels:
+    app: busybox-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: busybox-dep
+  template:
+    metadata:
+      labels:
+        app: busybox-dep
+    spec:
+      containers:
+        - name: busybox
+          image: busybox:1.35.0aa
+          command:
+            - sleep
+            - '777787'
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
