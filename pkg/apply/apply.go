@@ -4,6 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gthub.com/Mrliuch/cd-tools/pkg/k8s"
+	"time"
 )
 
 func Apply(cmd *cobra.Command, workdir string) error {
@@ -15,7 +16,12 @@ func Apply(cmd *cobra.Command, workdir string) error {
 	if err != nil {
 		logrus.Fatal("获取参数\"kube-config\"失败")
 	}
-	timeout, _ := cmd.Flags().GetInt("timeout")
+
+	timeoutStr, _ := cmd.Flags().GetString("timeout")
+	timeout, err := time.ParseDuration(timeoutStr)
+	if err != nil {
+		logrus.Fatalf("请设置正确的超时时间：%s", err.Error())
+	}
 	clusterName, _ := cmd.Flags().GetString("cluster-name")
 	k8sController := k8s.KubernetesControllerImpl{
 		Workdir:     workdir,

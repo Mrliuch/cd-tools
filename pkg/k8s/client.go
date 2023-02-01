@@ -14,6 +14,7 @@ import (
 	"regexp"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"time"
 )
 
 var schemeNew = runtime.NewScheme()
@@ -28,7 +29,7 @@ type KubernetesControllerImpl struct {
 	Name          string
 	Namespace     string
 	K8SYaml       string
-	TimeOut       int
+	TimeOut       time.Duration
 	ClusterName   string
 	CheckPass     bool
 	BackupPath    string

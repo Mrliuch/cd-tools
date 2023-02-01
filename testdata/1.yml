@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: busybox
-          image: busybox:1.35.0aa
+          image: busybox:1.35.0
           command:
             - sleep
             - '777787'

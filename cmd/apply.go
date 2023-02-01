@@ -32,7 +32,7 @@ func init() {
 	applyCmd.Flags().StringP("kube-config", "c", "/root/.kube/config", "指定KubeConfig文件")
 	applyCmd.Flags().StringP("workdir", "w", "/root/.cd-tools", "工作路径，用来存放备份文件")
 	applyCmd.Flags().StringP("file", "f", "", "指定创建或更新的K8S yaml文件路径")
-	applyCmd.Flags().IntP("timeout", "t", 60, "指定超时时间，单位s，最小设置为5")
+	applyCmd.Flags().StringP("timeout", "t", "60s", "指定超时时间，单位\"ns\"、“us”、“µs”、“ms”、“s”、“m”、“h”")
 	applyCmd.Flags().StringP("cluster-name", "n", "", "设置集群名称，默认为master ip")
 	rootCmd.AddCommand(applyCmd)
 

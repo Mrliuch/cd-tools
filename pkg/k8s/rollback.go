@@ -20,6 +20,10 @@ func (k *KubernetesControllerImpl) Rollback() *KubernetesControllerImpl {
 	if err != nil {
 		logrus.Fatalf("回滚Deployment失败：%s", err.Error())
 	}
-	logrus.Infof("回滚完成：%s，请检查是否回滚成功，本次操作已结束", k.Name)
+	k.Check()
+	if !k.CheckPass {
+		logrus.Fatalf("回滚失败：%s，请查看", k.Name)
+	}
+	logrus.Infof("回滚完成：%s，本次操作已结束", k.Name)
 	return k
 }

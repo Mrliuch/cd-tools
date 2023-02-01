@@ -7,7 +7,7 @@ import (
 )
 
 func (k *KubernetesControllerImpl) Check() *KubernetesControllerImpl {
-	logrus.Infof("正在进行部署后检测，时间：%ds，请等待", k.TimeOut)
+	logrus.Infof("正在进行Pod检测，时间：%ds，请等待", int(k.TimeOut.Seconds()))
 	now := time.Now()
 	time.Sleep(time.Second * 2) // 延迟2秒，以等待pod资源被k8s分发创建
 	for {
@@ -27,8 +27,8 @@ func (k *KubernetesControllerImpl) Check() *KubernetesControllerImpl {
 			break
 		}
 		time.Sleep(time.Second * 2)
-		if time.Now().Sub(now) > time.Second*time.Duration(k.TimeOut) {
-			logrus.Errorf("规定时间内Pod未成功启动，准备回滚")
+		if time.Now().Sub(now) > k.TimeOut {
+			logrus.Errorf("规定时间内Pod未成功启动")
 			return k
 		}
 	}
@@ -46,11 +46,17 @@ func (k *KubernetesControllerImpl) check() (map[string]int, error) {
 		switch pod.Status.Phase {
 		case coreV1.PodUnknown:
 			podStatus[pod.Name] = 1
-			logrus.Infof("Pod名称：%s, 当前状态：%s", pod.Name, pod.Status.Phase)
+			logrus.Warnf("Pod名称：%s, 当前状态：%s", pod.Name, pod.Status.Phase)
 
 		case coreV1.PodFailed:
 			podStatus[pod.Name] = 1
-			logrus.Infof("Pod名称：%s, 当前状态：%s", pod.Name, pod.Status.Phase)
+			//logrus.Infof("Pod名称：%s, 当前状态：%s", pod.Name, pod.Status.Phase)
+			for _, containerStatus := range pod.Status.ContainerStatuses { // 删除镜像拉取失败POD以重新拉取
+				//i.AnsibleController.WriteMessage(fmt.Sprintf("Pod: %s, 当前Reason: %s", pod.Name, containerStatus.State.Waiting.Reason))
+				if containerStatus.State.Waiting != nil {
+					logrus.Warnf("Pod名称：%s, 当前状态：%s，原因:%s", pod.Name, pod.Status.Phase, containerStatus.State.Waiting.Reason)
+				}
+			}
 		case coreV1.PodRunning:
 			logrus.Infof("Pod：%s, 状态：%s", pod.Name, pod.Status.Phase)
 			podStatus[pod.Name] = 0
@@ -58,9 +64,7 @@ func (k *KubernetesControllerImpl) check() (map[string]int, error) {
 			for _, containerStatus := range pod.Status.ContainerStatuses { // 删除镜像拉取失败POD以重新拉取
 				//i.AnsibleController.WriteMessage(fmt.Sprintf("Pod: %s, 当前Reason: %s", pod.Name, containerStatus.State.Waiting.Reason))
 				if containerStatus.State.Waiting != nil {
-					if containerStatus.State.Waiting.Reason == "ImagePullBackOff" || containerStatus.State.Waiting.Reason == "ErrImagePull" {
-						logrus.Infof("Pod名称：%s, 当前状态：%s，原因:%s", pod.Name, pod.Status.Phase, containerStatus.State.Waiting.Reason)
-					}
+					logrus.Warnf("Pod名称：%s, 当前状态：%s，原因:%s", pod.Name, pod.Status.Phase, containerStatus.State.Waiting.Reason)
 				}
 			}
 			podStatus[pod.Name] = 1
@@ -68,7 +72,7 @@ func (k *KubernetesControllerImpl) check() (map[string]int, error) {
 			logrus.Infof("Pod：%s, 状态：%s", pod.Name, pod.Status.Phase)
 			podStatus[pod.Name] = 0
 		default:
-			logrus.Infof("Pod：%s, 状态：%s", pod.Name, pod.Status.Phase)
+			logrus.Warnf("Pod：%s, 状态：%s", pod.Name, pod.Status.Phase)
 			podStatus[pod.Name] = 1
 		}
 	}
